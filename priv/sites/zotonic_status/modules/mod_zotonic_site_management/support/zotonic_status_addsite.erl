@@ -24,7 +24,7 @@
 
 -include_lib("zotonic.hrl").
 
--spec addsite(binary(), list(), #context{}) -> {ok, {Site :: atom(), Options :: list()} | {error, Reason :: binary()|string()}.
+-spec addsite(binary(), list(), #context{}) -> {ok, {Site :: atom(), Options :: list()}} | {error, Reason :: binary()|string()}.
 addsite(Name, Options, Context) when is_binary(Name) ->
     % Check if name can used for the site (not z_, zotonic_, existing site, or existing module)
     case check_name(Name, Context) of
