@@ -367,8 +367,13 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% @doc Poll a database for any queued updates.
 do_poll(Context) ->
-    DidTask = do_poll_task(Context),
-    do_poll_queue(Context) or DidTask.
+    try
+        DidTask = do_poll_task(Context),
+        do_poll_queue(Context) or DidTask
+    catch
+        exit:{timeout, _} -> false;
+        throw:{error, econnrefused} -> false
+    end.
 
 do_poll_task(Context) ->
     case poll_task(Context) of
@@ -774,10 +779,10 @@ pg_lang(_) -> "english".
 
 %% Map extra languages, these are from the i18n.language_stemmer configuration and not
 %% per default installed in PostgreSQL
-pg_lang_extra(Iso) ->
-    case iso639:lc2lang(z_convert:to_list(Iso)) of
-        <<"">> ->
-            pg_lang(Iso);
+pg_lang_extra(LangCode) ->
+    case z_language:english_name(z_convert:to_atom(LangCode)) of
+        undefined ->
+            pg_lang(LangCode);
         Lang ->
             lists:takewhile(fun
                                 (C) when C >= $a, C =< $z -> true;
@@ -811,7 +816,7 @@ pg_lang_extra(Iso) ->
 stemmer_language(Context) ->
     StemmingLanguage = m_config:get_value(i18n, language_stemmer, Context),
     case z_utils:is_empty(StemmingLanguage) of
-        true -> pg_lang(z_trans:default_language(Context));
+        true -> pg_lang(z_language:default_language(Context));
         false -> pg_lang_extra(StemmingLanguage)
     end.
 
@@ -820,11 +825,11 @@ stemmer_language_config(Context) ->
     StemmingLanguage = m_config:get_value(i18n, language_stemmer, Context),
     case z_utils:is_empty(StemmingLanguage) of
         true ->
-            z_trans:default_language(Context);
+            z_language:default_language(Context);
         false ->
-            case z_trans:to_language_atom(StemmingLanguage) of
+            case z_language:to_language_atom(StemmingLanguage) of
                 {ok, LangAtom} -> LangAtom;
-                {error, not_a_language} -> z_trans:default_language(Context)
+                {error, not_a_language} -> z_language:default_language(Context)
             end
     end.
 
@@ -906,4 +911,3 @@ lookup_custom_pivot(Module, Column, Value, Context) ->
         [] -> undefined;
         [{Id}|_] -> Id
     end.
-

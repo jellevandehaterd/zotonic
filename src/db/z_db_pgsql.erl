@@ -45,6 +45,9 @@
 
 -define(IDLE_TIMEOUT, 60000).
 
+-define(CONNECT_RETRIES, 5).
+-define(CONNECT_RETRY_SLEEP, 10000).
+
 -record(state, {conn, conn_args}).
 
 
@@ -52,7 +55,7 @@
 %% API
 %%
 
-start_link(Args) ->
+start_link(Args) when is_list(Args) ->
     gen_server:start_link(?MODULE, Args, []).
 
 test_connection(Args) ->
@@ -90,11 +93,12 @@ get_raw_connection(#context{dbc=Worker}) when Worker =/= undefined ->
 
 init(Args) ->
     %% Start disconnected
-    {ok, #state{conn=undefined, conn_args=Args}}.
+    process_flag(trap_exit, true),
+    {ok, #state{conn=undefined, conn_args=Args}, ?IDLE_TIMEOUT}.
 
 
-handle_call(Cmd, _From, #state{conn=undefined}=State) ->
-    case connect(State) of
+handle_call(Cmd, _From, #state{conn=undefined, conn_args=Args}=State) ->
+    case connect(Args) of
         {ok, Conn} ->
             handle_call(Cmd, _From, State#state{conn=Conn});
         {error, _} = E ->
@@ -104,6 +108,7 @@ handle_call(Cmd, _From, #state{conn=undefined}=State) ->
 handle_call({squery, Sql}, _From, #state{conn=Conn}=State) ->
     {reply, decode_reply(epgsql:squery(Conn, Sql)), State, ?IDLE_TIMEOUT};
 
+
 handle_call({equery, Sql, Params}, _From, #state{conn=Conn}=State) ->
     {reply, decode_reply(epgsql:equery(Conn, Sql, encode_values(Params))), State, ?IDLE_TIMEOUT};
 
@@ -111,22 +116,27 @@ handle_call(get_raw_connection, _From, #state{conn=Conn}=State) ->
     {reply, Conn, State, ?IDLE_TIMEOUT};
 
 handle_call(_Request, _From, State) ->
-    {reply, unknown_call, State}.
+    {reply, unknown_call, State, ?IDLE_TIMEOUT}.
 
 
 handle_cast(_Msg, State) ->
-    {noreply, State}.
+    {noreply, State, ?IDLE_TIMEOUT}.
 
 
 handle_info(timeout, State) ->
     {noreply, disconnect(State)};
+handle_info({'EXIT', _Pid, econnrefused}, State) ->
+    % Handled in the connect retry loop
+    {noreply, State};
+handle_info({'EXIT', _Pid, _Reason}, State) ->
+    {stop, normal, State};
 handle_info(_Info, State) ->
-    {noreply, State}.
+    {noreply, State, ?IDLE_TIMEOUT}.
 
 terminate(_Reason, #state{conn=undefined}) ->
     ok;
 terminate(_Reason, #state{conn=Conn}) ->
-    ok = epgsql:close(Conn),
+    _ = epgsql:close(Conn),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -136,32 +146,50 @@ code_change(_OldVsn, State, _Extra) ->
 %%
 %% Helper functions
 %%
-
-connect(#state{conn_args=Args}) ->
-    connect(Args);
 connect(Args) when is_list(Args) ->
+    connect(Args, 0).
+
+connect(_Args, RetryCt) when RetryCt >= ?CONNECT_RETRIES ->
+    {error, econnrefused};
+connect(Args, RetryCt) ->
     Hostname = get_arg(dbhost, Args),
     Port = get_arg(dbport, Args),
     Database = get_arg(dbdatabase, Args),
     Username = get_arg(dbuser, Args),
     Password = get_arg(dbpassword, Args),
     Schema = get_arg(dbschema, Args),
-    case epgsql:connect(Hostname, Username, Password,
-                       [{database, Database}, {port, Port}]) of
-        {ok, Conn} ->
-            case epgsql:squery(Conn, "SET search_path TO " ++ Schema) of
-                {ok, [], []} ->
-                    {ok, Conn};
-                Error ->
-                    epgsql:close(Conn),
-                    {error, Error}
-            end;
-        {error, _} = E ->
-            E
+    try
+        case epgsql:connect(Hostname, Username, Password,
+                           [{database, Database}, {port, Port}]) of
+            {ok, Conn} ->
+                case epgsql:squery(Conn, "SET search_path TO " ++ Schema) of
+                    {ok, [], []} ->
+                        {ok, Conn};
+                    Error ->
+                        catch epgsql:close(Conn),
+                        {error, Error}
+                end;
+            {error, econnrefused} ->
+                lager:warning("psql connection to ~p:~p refused, retrying in ~p sec (~p)",
+                              [Hostname, Port, ?CONNECT_RETRY_SLEEP div 1000, self()]),
+                timer:sleep(?CONNECT_RETRY_SLEEP),
+                connect(Args, RetryCt+1);
+            {error, _} = E ->
+                lager:warning("psql connection to ~p:~p returned error ~p",
+                              [Hostname, Port, E]),
+                E
+        end
+    catch
+        A:B ->
+            ?DEBUG({A,B}),
+            timer:sleep(?CONNECT_RETRY_SLEEP),
+            connect(Args, RetryCt+1)
     end.
 
-disconnect(State) ->
-    epgsql:close(State#state.conn),
+disconnect(#state{conn=undefined} = State) ->
+    State;
+disconnect(#state{conn=Conn} = State) ->
+    _ = epgsql:close(Conn),
     State#state{conn=undefined}.
 
 get_arg(K, Args) ->

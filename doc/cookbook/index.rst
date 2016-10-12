@@ -7,12 +7,16 @@ Cookbooks
    :maxdepth: 1
 
    custom-action
+   custom-filter
    custom-model
    custom-pivot
+   custom-search
    pivot-templates
    custom-tag
    writing-module
+   overriding
    task-queue
+   template-icons
 
 Frontend cookbook
 -----------------

@@ -3,6 +3,11 @@
 Notifications
 =============
 
+At different moments in the lifecycle of the web request, Zotonic sends
+notifications. By *observing* these notifications you can
+:ref:`override <cookbook-overriding>` Zotonic’s behaviour. You can also
+add your own notifications.
+
 Zotonic’s notifier system makes it possible to create modular
 components with a pluggable interface. The notifier system is used by
 internal core Zotonic components like the authentication mechanism,
@@ -36,33 +41,57 @@ As mentioned earlier, the notification system can not only be used to
 just send events to observers. Observers can also return values
 back. They can do this in various ways described in the methods below.
 
+Notification types
+------------------
+
+.. _notification-notify:
+
 notify
-  Send a message to all observers. This is used if you want to
-  notify other observers about a specific event. In Zotonic this
-  is used a lot. For instance, it is used to notify modules of
-  about user logons, or notify when modules are activated and
-  deactivated.
+^^^^^^
+
+Send a message to all observers. This is used if you want to
+notify other observers about a specific event. In Zotonic this
+is used a lot. For instance, it is used to notify modules of
+about user logons, or notify when modules are activated and
+deactivated.
 
 notify1
-  Notify the first observer. This is useful for if you want to
-  be sure just one observer can do something with the message.
+^^^^^^^
+
+Notify the first observer. This is useful for if you want to
+be sure just one observer can do something with the message.
+
+.. _notification-first:
 
 first
-  Call all observers, and use the first non ``undefined`` answer.
-  This is used to get information from one of the observers. By
-  using the notification system it makes sure that modules are
-  decoupled.
+^^^^^
+
+Call all observers, and use the first non ``undefined`` answer.
+This is used to get information from one of the observers. By
+using the notification system it makes sure that modules are
+decoupled.
+
+.. _notification-map:
 
 map
-  Call all observers and get a list of all answers.
+^^^
+
+Call all observers and get a list of all answers.
+
+.. _notification-foldl:
 
 foldl
-  Do a fold over all observers, high prio observers first.
+^^^^^
+
+Do a fold over all observers, high prio observers first.
+
+.. _notification-foldr:
 
 foldr
-  Do a fold over all observers, low prio observers first.
+^^^^^
 
-You can also send notifications from JavaScript.
+Do a fold over all observers, low prio observers first.
+
 
 .. _guide-notifications-observe:
 
@@ -99,7 +128,7 @@ Example::
    z_notifier:observe(acl_logon, {mysitewww, handle_logon}, Context)
 
 Subscription shorthands
-.......................
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Modules and sites can use shortcuts for registering as an observer. When the
 Zotonic module exports a function with the prefix ``observe_`` or
