@@ -24,11 +24,11 @@
 
 -include_lib("zotonic.hrl").
 
--spec addsite(binary(), list(), #context{}) -> ok | {error, binary()|string()}.
+-spec addsite(binary(), list(), #context{}) -> {ok, {Site :: atom(), Options :: list()} | {error, Reason :: binary()|string()}.
 addsite(Name, Options, Context) when is_binary(Name) ->
     % Check if name can used for the site (not z_, zotonic_, existing site, or existing module)
     case check_name(Name, Context) of
-        ok -> 
+        ok ->
             case filelib:is_file(site_dir(Name)) of
                 true ->
                     {error, iolist_to_binary([
@@ -42,6 +42,7 @@ addsite(Name, Options, Context) when is_binary(Name) ->
     end.
 
 % Check Hostname (must have DNS resolve)
+-spec addsite_check_hostname(atom(), list(), #context{}) -> {ok, Site :: atom(), Options :: list()}| {error, Reason :: string()}.
 addsite_check_hostname(Name, Options, Context) ->
     mod_zotonic_site_management:progress(Name, ?__("Resolving the hostname ...", Context), Context),
     {hostname, HostPort} = proplists:lookup(hostname, Options),
@@ -175,7 +176,7 @@ addsite_copy_skel(Name, Options, Context) ->
 addsite_compile(Name, Options, Context) ->
     mod_zotonic_site_management:progress(Name, ?__("Force compile all Erlang files ...", Context), Context),
     z:compile(),
-    Site = binary_to_atom(Name, utf8), 
+    Site = binary_to_atom(Name, utf8),
     {ok, {Site, Options}}.
 
 % Add a sample .gitgnore file to the newly created site directory.
@@ -324,7 +325,7 @@ ensure_dir(Dir, Context) ->
 replace_tags(Bin, Options) when is_binary(Bin) ->
     Parts = re:split(Bin, "(%%[A-Z]+%%)", [{return,binary}]),
     lists:map(
-            fun(P) -> 
+            fun(P) ->
                 z_convert:to_binary(map_tag(P, Options))
             end,
             Parts).
@@ -335,14 +336,14 @@ map_tag(<<"%%SKEL%%">>, Options) ->
     case proplists:get_value(skeleton, Options, <<>>) of
         <<>> -> "undefined";
         Skel -> Skel
-    end;  
+    end;
 map_tag(<<"%%FULLNAME%%">>, _Options) -> <<>>;
 map_tag(<<"%%DBHOST%%">>, Options) -> proplists:get_value(dbhost, Options);
 map_tag(<<"%%DBPORT%%">>, Options) ->
     case proplists:get_value(dbport, Options, <<>>) of
         <<>> -> "0";
         Port -> Port
-    end;  
+    end;
 map_tag(<<"%%DBUSER%%">>, Options) -> proplists:get_value(dbuser, Options);
 map_tag(<<"%%DBPASSWORD%%">>, Options) -> proplists:get_value(dbpassword, Options);
 map_tag(<<"%%DBDATABASE%%">>, Options) -> proplists:get_value(dbdatabase, Options);
