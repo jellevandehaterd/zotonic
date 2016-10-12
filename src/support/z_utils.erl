@@ -81,7 +81,6 @@
     prop_replace/3,
     props_merge/2,
     randomize/1,
-    randomize/2,
     replace1/3,
     split/2,
     split_in/2,
@@ -646,11 +645,6 @@ randomize(List) ->
     {_, D1} = lists:unzip(lists:keysort(1, D)),
     D1.
 
-%% @doc Take randomly max N elements from a list.
--spec randomize(integer(), list()) -> list().
-randomize(N, List) ->
-    split(N, randomize(List)).
-
 %% @doc Take max N elements from a list.
 -spec split(integer(), list()) -> list().
 split(N, L) ->
@@ -883,6 +877,7 @@ flush_message(Msg) ->
 
 
 %% @doc Generate a unique user name from a proplist.
+-spec generate_username([tuple()], #context{}) -> string().
 generate_username(Props, Context) ->
     case proplists:get_value(title, Props) of
         [] ->
