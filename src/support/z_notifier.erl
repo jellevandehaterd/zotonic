@@ -65,7 +65,7 @@
                           {43200, tick_12h},
                           {86400, tick_24h} ]).
 
--record(state, {observers :: list(), timers :: list(), site :: atom()}).
+-record(state, {observers :: undefined | list(), timers :: list(), site :: atom()}).
 
 %%====================================================================
 %% API
@@ -85,7 +85,7 @@ start_link(SiteProps) when is_list(SiteProps) ->
         {ok, P} ->
             ets:give_away(ObserverTable, P, observer_table),
             {ok, P};
-        {already_started, P} ->
+        {error, {already_started, P}} ->
             ets:give_away(ObserverTable, P, observer_table),
             {already_started, P};
         R -> R
@@ -300,10 +300,6 @@ await_exact(Msg, Timeout, Context) ->
 %% gen_server callbacks
 %%====================================================================
 
-%% @spec init(Args) -> {ok, State} |
-%%                     {ok, State, Timeout} |
-%%                     ignore               |
-%%                     {stop, Reason}
 %% @doc Initiates the server, creates a new observer list
 init(Args) ->
     {site, Site} = proplists:lookup(site, Args),
