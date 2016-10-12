@@ -20,12 +20,12 @@ install: echo "hi" # stub command; otherwise travis runs 'rebar get-deps'
 script:
   - make all
   - make test
-  - if [[ "BUILD_DOCS" = true ]]; then make edocs; fi
-  - if [[ "BUILD_DOCS" = true ]]; then pip install --user -r doc/requirements.txt; fi
-  - if [[ "BUILD_DOCS" = true ]]; then make -C doc/ stubs; fi
-  - if [[ "BUILD_DOCS" = true ]]; then make -C doc/ SPHINXOPTS='-nW' html; fi
+  - if [[ "$BUILD_DOCS" = true ]]; then make edocs; fi
+  - if [[ "$BUILD_DOCS" = true ]]; then pip install --user -r doc/requirements.txt; fi
+  - if [[ "$BUILD_DOCS" = true ]]; then make -C doc/ stubs; fi
+  - if [[ "$BUILD_DOCS" = true ]]; then make -C doc/ SPHINXOPTS='-nW' html; fi
   - ./rebar3 xref
-  - if [[ "DIALYZER" = true ]]; then ./rebar3 dialyzer; fi
+  - if [[ "$DIALYZER" = true ]]; then ./rebar3 dialyzer; fi
 sudo: false
 branches:
   only:
