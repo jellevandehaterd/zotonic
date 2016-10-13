@@ -24,7 +24,7 @@
 
 -include_lib("zotonic.hrl").
 
--spec addsite(binary(), list(), #context{}) -> {ok, {Site :: atom(), Options :: list()}} | {error, Reason :: binary()|string()}.
+-spec addsite(binary(), list(), #context{}) -> {ok, {Site :: binary(), Options :: list()}} | {error, Reason :: binary() | string()}.
 addsite(Name, Options, Context) when is_binary(Name) ->
     % Check if name can used for the site (not z_, zotonic_, existing site, or existing module)
     case check_name(Name, Context) of
@@ -42,7 +42,6 @@ addsite(Name, Options, Context) when is_binary(Name) ->
     end.
 
 % Check Hostname (must have DNS resolve)
--spec addsite_check_hostname(atom(), list(), #context{}) -> {ok, Site :: atom(), Options :: list()}| {error, Reason :: string()}.
 addsite_check_hostname(Name, Options, Context) ->
     mod_zotonic_site_management:progress(Name, ?__("Resolving the hostname ...", Context), Context),
     {hostname, HostPort} = proplists:lookup(hostname, Options),
