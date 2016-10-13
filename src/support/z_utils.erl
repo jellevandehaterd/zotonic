@@ -645,7 +645,7 @@ randomize(List) ->
     D1.
 
 %% @doc Take max N elements from a list.
--spec split(integer(), list()) -> list().
+-spec split(integer(), list()) -> {list(), list()}.
 split(N, L) ->
     split(N,L,[]).
 
