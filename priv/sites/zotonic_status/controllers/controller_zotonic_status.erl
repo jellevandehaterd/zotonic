@@ -146,6 +146,7 @@ updater(SitesStatus, Context) ->
     end.
 
 
+-spec render_update(list(), #context{}) -> #context{}.
 render_update(SitesStatus, Context) ->
     Vars = [
         {has_user, z_acl:user(Context)},

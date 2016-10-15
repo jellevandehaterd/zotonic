@@ -40,6 +40,7 @@ resource_exists(Context) ->
 previously_existed(Context) ->
     {true, Context}.
 
+-spec moved_temporarily(#context{}) -> tuple().
 moved_temporarily(Context) ->
     Context1 = mod_translation:set_user_language(z_context:get_q(<<"code">>, Context), Context),
     Page = z_context:get_q(<<"p">>, Context1),

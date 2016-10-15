@@ -843,9 +843,7 @@ assert_table_name1([H|T]) when (H >= $a andalso H =< $z) orelse (H >= $0 andalso
 
 
 %% @doc Merge the contents of the props column into the result rows
--spec merge_props(list() | undefined) -> list() | undefined.
-merge_props(undefined) ->
-    undefined;
+-spec merge_props([[tuple()]]) -> list() | undefined.
 merge_props(List) ->
     merge_props(List, []).
 

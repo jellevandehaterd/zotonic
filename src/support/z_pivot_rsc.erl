@@ -141,6 +141,7 @@ queue_all(Context) ->
         end.
 
 %% @doc Insert a rsc_id in the pivot queue
+-spec insert_queue(m_rsc:resource(), #context{}) -> ok | {error, eexist}.
 insert_queue(Id, Context) ->
     insert_queue(Id, calendar:universal_time(), Context).
 

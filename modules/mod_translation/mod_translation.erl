@@ -344,10 +344,6 @@ event(#postback{message={translation_reload, _Args}}, Context) ->
 
 %% @doc Strip the language code from the location (if the language code is recognized).
 %%      For instance: `<<"/nl-nl/admin/translation">>' becomes `<<"/admin/translation">>'
-url_strip_language([$/,A,B,$/ | Rest] = Url) ->
-    url_strip_language1(Url, [A,B], Rest);
-url_strip_language([$/,A,B,$-,C,D,$/ | Rest] = Url) ->
-    url_strip_language1(Url, [A,B,"-",C,D], Rest);
 url_strip_language(<<$/,A,B,$/, Rest/binary>> = Url) ->
     url_strip_language1(Url, [A,B], Rest);
 url_strip_language(<<$/,A,B,$-,C,D,$/, Rest/binary>> = Url) ->
@@ -355,11 +351,6 @@ url_strip_language(<<$/,A,B,$-,C,D,$/, Rest/binary>> = Url) ->
 url_strip_language(Url) ->
     Url.
 
-url_strip_language1(Url, LanguageCode, Rest) when is_list(Url) ->
-    case z_language:is_valid(LanguageCode) of
-        true -> [$/|Rest];
-        false -> Url
-    end;
 url_strip_language1(Url, LanguageCode, Rest) when is_binary(Url) ->
     case z_language:is_valid(LanguageCode) of
         true -> <<$/, Rest/binary>>;
@@ -437,7 +428,7 @@ valid_config_language(Code, Context) ->
 
 
 %% @doc Add a language to the i18n configuration
--spec language_add(atom(), boolean(), #context{}) -> #context{}.
+-spec language_add(atom() | binary(), boolean(), #context{}) -> #context{}.
 language_add(NewLanguageCode, IsEnabled, Context) ->
     NewCode = z_convert:to_atom(NewLanguageCode),
     NewCodeBin = z_convert:to_binary(NewCode),

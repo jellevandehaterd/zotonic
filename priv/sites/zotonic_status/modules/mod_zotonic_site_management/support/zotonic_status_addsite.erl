@@ -25,7 +25,7 @@
 -include_lib("zotonic.hrl").
 
 -spec addsite(binary(), list(), #context{}) ->
-    {ok, {Site :: binary(), Options :: list()}} | {error, Reason :: binary() | string()}.
+    {ok, {Site :: atom(), Options :: list()}} | {error, Reason :: binary() | string()}.
 addsite(Name, Options, Context) when is_binary(Name) ->
     % Check if name can used for the site (not z_, zotonic_, existing site, or existing module)
     case check_name(Name, Context) of
@@ -43,6 +43,8 @@ addsite(Name, Options, Context) when is_binary(Name) ->
     end.
 
 % Check Hostname (must have DNS resolve)
+-spec addsite_check_hostname(binary(), list(), #context{}) ->
+    {ok, {Site :: binary(), Options :: list()}} | {error, Reason :: string()}.
 addsite_check_hostname(Name, Options, Context) ->
     mod_zotonic_site_management:progress(Name, ?__("Resolving the hostname ...", Context), Context),
     {hostname, HostPort} = proplists:lookup(hostname, Options),
@@ -197,6 +199,7 @@ create_gitignore(SiteDir) ->
     file:write_file(filename:join([SiteDir, ".gitignore"]), GitIgnore).
 
 
+-spec copy_skeleton_dir(any(), any(), list(), #context{}) -> ok | {error, Reason :: binary()}.
 copy_skeleton_dir(From, To, Options, Context) ->
     Files = filelib:wildcard(z_convert:to_list(filename:join(From,"*"))),
     lists:foreach(
@@ -327,7 +330,7 @@ ensure_dir(Dir, Context) ->
     end.
 
 replace_tags(Bin, Options) when is_binary(Bin) ->
-    Parts = re:split(Bin, "(%%[A-Z]+%%)", [{return, binary}]),
+    Parts = re:split(Bin, "(%%[A-Z]+%%)", [{return,binary}]),
     lists:map(
             fun(P) ->
                 z_convert:to_binary(map_tag(P, Options))
