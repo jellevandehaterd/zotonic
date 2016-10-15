@@ -192,7 +192,8 @@ notify1(Msg, Context) ->
     end.
 
 
-%% @doc Call all observers till one returns something else than undefined. The prototype of the observer is: f(Msg, Context)
+%% @doc Call all observers till one returns something else than undefined.
+%% The prototype of the observer is: f(Msg, Context)
 first(Msg, Context) ->
     Observers = get_observers(Msg, Context),
     first1(Observers, Msg, Context).
@@ -210,13 +211,15 @@ first(Msg, Context) ->
         end.
 
 
-%% @doc Call all observers, return the list of answers. The prototype of the observer is: f(Msg, Context)
+%% @doc Call all observers, return the list of answers. The prototype of the
+%% observer is: f(Msg, Context)
 map(Msg, Context) ->
     Observers = get_observers(Msg, Context),
     lists:map(fun(Obs) -> notify_observer(Msg, Obs, true, Context) end, Observers).
 
 
-%% @doc Do a fold over all observers, prio 1 observers first. The prototype of the observer is: f(Msg, Acc, Context)
+%% @doc Do a fold over all observers, prio 1 observers first. The prototype of
+%% the observer is: f(Msg, Acc, Context)
 foldl(Msg, Acc0, Context) ->
     Observers = get_observers(Msg, Context),
     lists:foldl(

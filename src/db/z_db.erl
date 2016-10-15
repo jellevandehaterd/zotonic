@@ -218,7 +218,7 @@ with_connection(F, Context) ->
             Result
         after
             return_connection(Connection, Context)
-	end.
+    end.
 
 
 -spec assoc_row(string(), #context{}) -> list(tuple()).
@@ -381,8 +381,9 @@ insert(Table, Context) ->
       Context).
 
 
-%% @doc Insert a row, setting the fields to the props.  Unknown columns are serialized in the props column.
-%% When the table has an 'id' column then the new id is returned.
+%% @doc Insert a row, setting the fields to the props. Unknown columns are
+%% serialized in the props column. When the table has an 'id' column then the
+%% new id is returned.
 -spec insert(table_name(), props(), #context{}) -> boolean().
 insert(Table, [], Context) ->
     insert(Table, Context);
@@ -782,7 +783,7 @@ drop_table(Name, Context) when is_atom(Name) ->
     drop_table(atom_to_list(Name), Context);
 drop_table(Name, Context) ->
     case table_exists(Name, Context) of
-        true -> q("drop table \""++Name++"\"", Context), ok;
+        true -> q("drop table \"" ++ Name ++ "\"", Context), ok;
         false -> ok
     end.
 

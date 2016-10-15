@@ -24,7 +24,8 @@
 
 -include_lib("zotonic.hrl").
 
--spec addsite(binary(), list(), #context{}) -> {ok, {Site :: binary(), Options :: list()}} | {error, Reason :: binary() | string()}.
+-spec addsite(binary(), list(), #context{}) ->
+    {ok, {Site :: binary(), Options :: list()}} | {error, Reason :: binary() | string()}.
 addsite(Name, Options, Context) when is_binary(Name) ->
     % Check if name can used for the site (not z_, zotonic_, existing site, or existing module)
     case check_name(Name, Context) of
@@ -173,7 +174,11 @@ addsite_copy_skel(Name, Options, Context) ->
 
 % Compile
 addsite_compile(Name, Options, Context) ->
-    mod_zotonic_site_management:progress(Name, ?__("Force compile all Erlang files ...", Context), Context),
+    mod_zotonic_site_management:progress(
+        Name,
+        ?__("Force compile all Erlang files ...", Context),
+        Context
+    ),
     z:compile(),
     Site = binary_to_atom(Name, utf8),
     {ok, {Site, Options}}.
@@ -322,7 +327,7 @@ ensure_dir(Dir, Context) ->
     end.
 
 replace_tags(Bin, Options) when is_binary(Bin) ->
-    Parts = re:split(Bin, "(%%[A-Z]+%%)", [{return,binary}]),
+    Parts = re:split(Bin, "(%%[A-Z]+%%)", [{return, binary}]),
     lists:map(
             fun(P) ->
                 z_convert:to_binary(map_tag(P, Options))
