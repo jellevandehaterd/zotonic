@@ -1,3 +1,5 @@
+.. _ref-acl-notifications:
+
 ACL notifications
 -----------------
 
@@ -8,4 +10,3 @@ ACL notifications
 .. include:: includes/acl_logoff.rst
 .. include:: includes/acl_logon.rst
 .. include:: includes/acl_mqtt.rst
-.. include:: includes/acl_rsc_update_check.rst
