@@ -760,7 +760,8 @@ is_a(Id, Context) ->
     RscCatId = p(Id, category_id, Context),
     m_category:is_a(RscCatId, Context).
 
-%% @doc Return the categories and the inherited categories of the resource. Returns a list with category ids
+%% @doc Return the categories and the inherited categories of the resource. Returns a list with
+%% category ids
 -spec is_a_id(resource(), #context{}) -> list(pos_integer()).
 is_a_id(Id, Context) ->
     RscCatId = p(Id, category_id, Context),

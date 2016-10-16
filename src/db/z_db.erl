@@ -88,7 +88,7 @@
 -compile([{parse_transform, lager_transform}]).
 
 -type table_name() :: atom() | string().
--type parameters() :: list(tuple() | atom() | string()).
+-type parameters() :: list(tuple() | atom() | string() | binary() | integer()).
 -type sql() :: string() | iodata().
 -type props() :: proplists:proplist().
 -type id() :: pos_integer().
@@ -225,7 +225,7 @@ with_connection(F, Context) ->
 assoc_row(Sql, Context) ->
     assoc_row(Sql, [], Context).
 
--spec assoc_row(string(), list(tuple()), #context{}) -> list(tuple()).
+-spec assoc_row(string(), parameters(), #context{}) -> proplists:proplist() | undefined.
 assoc_row(Sql, Parameters, Context) ->
     case assoc(Sql, Parameters, Context) of
         [Row|_] -> Row;
@@ -384,7 +384,7 @@ insert(Table, Context) ->
 %% @doc Insert a row, setting the fields to the props. Unknown columns are
 %% serialized in the props column. When the table has an 'id' column then the
 %% new id is returned.
--spec insert(table_name(), props(), #context{}) -> boolean().
+-spec insert(table_name(), props(), #context{}) -> {ok, pos_integer()}.
 insert(Table, [], Context) ->
     insert(Table, Context);
 insert(Table, Props, Context) when is_atom(Table) ->
@@ -430,7 +430,7 @@ insert(Table, Props, Context) ->
 
 
 %% @doc Update a row in a table, merging the props list with any new props values
--spec update(table_name(), id(), parameters(), #context{}) -> {ok, integer()}.
+-spec update(table_name(), id(), parameters(), #context{}) -> {ok, pos_integer()}.
 update(Table, Id, Parameters, Context) when is_atom(Table) ->
     update(atom_to_list(Table), Id, Parameters, Context);
 update(Table, Id, Parameters, Context) ->

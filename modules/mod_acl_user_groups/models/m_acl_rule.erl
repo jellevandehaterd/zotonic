@@ -95,7 +95,7 @@ m_find_value(S, M=#m{value=T}, _) when ?valid_acl_kind(T), ?valid_acl_kind(T), ?
 m_find_value(Id, #m{value=T}, Context) when ?valid_acl_kind(T), is_integer(Id) ->
     case get(T, Id, Context) of
         {ok, Props} -> Props;
-        {error, _} -> undefined
+        _Error -> undefined
     end;
 m_find_value(undefined, #m{value=T}, _Context) when ?valid_acl_kind(T) ->
     undefined;
@@ -237,7 +237,7 @@ update(Kind, Id, Props, Context) ->
 get(Kind, Id, Context) ->
     case z_db:select(table(Kind), Id, Context) of
         {ok, Row} -> {ok, normalize_action(Row)};
-        {error, _} = Error -> Error
+        Error -> Error
     end.
 
 insert(Kind, Props, Context) ->

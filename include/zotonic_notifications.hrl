@@ -36,7 +36,7 @@
     path = <<>> :: binary(),
     method = <<"GET">> :: binary(),
     protocol = http :: http|https,
-    tracer_pid = undefined :: pid()|undefined
+    tracer_pid = undefined :: atom() | pid()
 }).
 
 -record(dispatch_redirect, {
@@ -212,7 +212,7 @@
 %% Type: foldl
 -record(dispatch_rewrite, {
     is_dir = false :: boolean(),
-    path = "" :: string(),
+    path = <<>> :: binary(),
     host
 }).
 
@@ -680,7 +680,7 @@
     description :: binary() | {trans, list()},
     rsc_props :: list(),
     medium_props :: list(),
-    medium_url :: binary(),
+    medium_url = <<>> :: binary(),
     preview_url :: binary()
 }).
 
@@ -950,7 +950,7 @@
 %% Return: ``ok`` or ``undefined``
 -record(manage_data, {
     module :: atom(),
-    props :: list()
+    props :: tuple() | list()
 }).
 
 % Simple mod_development notifications:

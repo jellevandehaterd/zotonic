@@ -115,6 +115,7 @@ event(#postback{message={delete_all, Args}}, Context) ->
             z_render:wire({alert, [{message, ?__("Delete is canceled, there are users in the user groups.", Context)}]}, Context)
     end.
 
+-spec ug_delete(list(pos_integer()), #context{}) -> any().
 ug_delete(Ids, Context) ->
     z_session_page:add_script(z_render:wire({mask, [{message, ?__("Deleting...", Context)}]}, Context)),
     UGUserIds = in_user_groups(Ids, Context),
@@ -136,6 +137,7 @@ ug_delete(Ids, Context) ->
 
     end.
 
+-spec ug_move_and_delete([pos_integer()], m_rsc:resource_id(), #context{}) -> ok.
 ug_move_and_delete(Ids, ToGroupId, Context) ->
     z_session_page:add_script(z_render:wire({mask, [{message, ?__("Deleting...", Context)}]}, Context)),
     UGUserIds = in_user_groups(Ids, Context),

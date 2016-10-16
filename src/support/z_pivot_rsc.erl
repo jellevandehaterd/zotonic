@@ -146,7 +146,7 @@ insert_queue(Id, Context) ->
     insert_queue(Id, calendar:universal_time(), Context).
 
 %% @doc Insert a rsc_id in the pivot queue for a certain date
--spec insert_queue(integer(), calendar:date(), #context{}) -> ok | {error, eexist}.
+-spec insert_queue(integer(), {calendar:date(), calendar:time()}, #context{}) -> ok | {error, eexist}.
 insert_queue(Id, Date, Context) when is_integer(Id), is_tuple(Date) ->
     z_db:transaction(
         fun(Ctx) ->
