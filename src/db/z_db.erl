@@ -311,7 +311,7 @@ q1(Sql, Parameters, #context{} = Context) ->
 q1(Sql, #context{} = Context, Timeout) when is_integer(Timeout) ->
     q1(Sql, [], Context, Timeout).
 
--spec q1(string(), parameters(), #context{}, pos_integer()) -> term() | undefined.
+-spec q1(sql(), parameters(), #context{}, pos_integer()) -> term() | undefined.
 q1(Sql, Parameters, Context, Timeout) ->
     F = fun(C) when C =:= none -> undefined;
            (C) ->
