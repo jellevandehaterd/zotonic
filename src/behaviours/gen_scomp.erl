@@ -29,12 +29,7 @@
 
 -module(gen_scomp).
 
--export([behaviour_info/1]).
+-include_lib("zotonic.hrl").
 
-behaviour_info(callbacks) ->
-    [
-        {render, 3},
-        {vary, 2}
-     ];
-behaviour_info(_Other) ->
-    undefined.
+-callback render(Params :: list(), Vars :: list(), Context :: #context{}) -> term().
+-callback vary(Params :: list(), Context :: #context{}) -> atom().
