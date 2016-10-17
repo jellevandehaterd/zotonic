@@ -26,7 +26,7 @@
 
 
 %% @doc Take the list of found labels per module and generate all po files for those labels in the module directories.
--spec generate([{ModuleName :: atom(), Labels :: list()}], #context{}) -> list().
+-spec generate([{ModuleName :: atom(), Labels :: list()}], #context{}) -> ok.
 generate(ModLabels, Context) ->
     generate1(ModLabels, Context).
 

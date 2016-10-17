@@ -312,26 +312,27 @@ event(#submit{message={add_video_embed, EventProps}}, Context) ->
                 {content_group_id, ContentGroupdId}
             ],
 
-            case m_rsc:insert(Props, Context) of
-                {ok, MediaId} ->
-                    spawn_preview_create(MediaId, Props, Context),
+            try
+                {ok, MediaId} = m_rsc:insert(Props, Context),
+                spawn_preview_create(MediaId, Props, Context),
 
-                    {_, ContextLink} = mod_admin:do_link(z_convert:to_integer(SubjectId), Predicate,
-                                                         MediaId, Callback, Context),
+                {_, ContextLink} = mod_admin:do_link(z_convert:to_integer(SubjectId), Predicate,
+                                                     MediaId, Callback, Context),
 
-                    ContextRedirect = case SubjectId of
-                        undefined ->
-                            case Stay of
-                                false -> z_render:wire({redirect, [{dispatch, "admin_edit_rsc"}, {id, MediaId}]}, ContextLink);
-                                true -> ContextLink
-                            end;
-                        _ -> ContextLink
-                    end,
-                    z_render:wire([
-                        {dialog_close, []},
-                        {growl, [{text, "Made the media page."}]}
-                        | Actions], ContextRedirect);
-                {error, _} = Error ->
+                ContextRedirect = case SubjectId of
+                    undefined ->
+                        case Stay of
+                            false -> z_render:wire({redirect, [{dispatch, "admin_edit_rsc"}, {id, MediaId}]}, ContextLink);
+                            true -> ContextLink
+                        end;
+                    _ -> ContextLink
+                end,
+                z_render:wire([
+                    {dialog_close, []},
+                    {growl, [{text, "Made the media page."}]}
+                    | Actions], ContextRedirect)
+            catch
+                {error, Error} ->
                     lager:error("[mod_video_embed] Error in add_video_embed: ~p on ~p", [Error, Props]),
                     z_render:growl_error("Could not create the media page.", Context)
             end;
@@ -343,10 +344,11 @@ event(#submit{message={add_video_embed, EventProps}}, Context) ->
                 {video_embed_service, EmbedService},
                 {video_embed_code, EmbedCode}
             ],
-            case m_rsc:update(Id, Props, Context) of
-                {ok, _} ->
-                    z_render:wire([{dialog_close, []} | Actions], Context);
-                {error, _} ->
+
+            try
+                {ok, _} = m_rsc:update(Id, Props, Context)
+            catch
+                _ ->
                     z_render:growl_error("Could not update the page with the new embed code.", Context)
             end
     end.
@@ -375,8 +377,6 @@ preview_youtube(MediaId, InsertProps, Context) ->
     case z_convert:to_binary(proplists:get_value(video_embed_id, InsertProps)) of
         <<>> ->
             static_preview(MediaId, "images/youtube.jpg", Context);
-        undefined ->
-            static_preview(MediaId, "images/youtube.jpg", Context);
         EmbedId ->
             Url = "http://img.youtube.com/vi/"++z_convert:to_list(EmbedId)++"/0.jpg",
             m_media:save_preview_url(MediaId, Url, Context)
@@ -388,8 +388,6 @@ preview_youtube(MediaId, InsertProps, Context) ->
 preview_vimeo(MediaId, InsertProps, Context) ->
     case z_convert:to_binary(proplists:get_value(video_embed_id, InsertProps)) of
         <<>> ->
-            static_preview(MediaId, "images/vimeo.jpg", Context);
-        undefined ->
             static_preview(MediaId, "images/vimeo.jpg", Context);
         EmbedId ->
             JsonUrl = "http://vimeo.com/api/v2/video/"++z_convert:to_list(EmbedId)++".json",

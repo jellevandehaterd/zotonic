@@ -671,6 +671,7 @@ to_tsv(Text, Level, Args, StemmingLanguage) when is_binary(Text) ->
         {["setweight(to_tsvector('pg_catalog.",StemmingLanguage,"', $",integer_to_list(N),"), '",Level,"')"], Args1}
     end.
 
+-spec to_float(term()) -> float().
 to_float(undefined) ->
     undefined;
 to_float(Text) ->
