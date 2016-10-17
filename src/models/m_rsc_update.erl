@@ -53,11 +53,10 @@
 
 
 %% @doc Insert a new resource. Crashes when insertion is not allowed.
--spec insert(list(), #context{}) -> {ok, integer()}.
+-spec insert(m_rsc:props(), #context{}) -> {ok, m_rsc:resource_id()}.
 insert(Props, Context) ->
     insert(Props, [{escape_texts, true}], Context).
 
--spec insert(list(), list() | boolean(), #context{}) -> {ok, integer()}.
 insert(Props, Options, Context) ->
     PropsDefaults = props_defaults(Props, Context),
     update(insert_rsc, PropsDefaults, Options, Context).
@@ -246,7 +245,8 @@ update(Id, Props, Context) ->
     update(Id, Props, [], Context).
 
 %% @doc Update a resource
--spec update(m_rsc:resource() | insert_rsc, list(), list() | boolean(), #context{}) -> {ok, integer()} | {error, term()}.
+-spec update(m_rsc:resource() | insert_rsc, m_rsc:props(), list() | boolean(), #context{}) ->
+    {ok, m_rsc:resource_id()}.
 update(Id, Props, false, Context) ->
     update(Id, Props, [{escape_texts, false}], Context);
 update(Id, Props, true, Context) ->
@@ -818,7 +818,6 @@ props_autogenerate(Id, Props, Context) ->
 
 
 %% @doc Fill in some defaults for empty props on insert.
-%% @spec props_defaults(Props1, Context) -> Props2
 props_defaults(Props, Context) ->
     % Generate slug from the title (when there is a title)
     Props1 = case proplists:get_value(slug, Props) of
