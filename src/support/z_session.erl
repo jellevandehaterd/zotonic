@@ -207,7 +207,7 @@ add_script(Script, ContextOrPid) ->
     z_transport:session(javascript, Script, ContextOrPid).
 
 %% @doc Split the scripts from the context and add the scripts to the session pages.
--spec add_script(#context{}) -> #context{}.
+-spec add_script(z:context()) -> z:context().
 add_script(Context) ->
     {Scripts, CleanContext} = z_script:split(Context),
     z_transport:session(javascript, Scripts, CleanContext),

@@ -357,7 +357,7 @@ equery(Sql, Parameters, #context{} = Context) ->
 equery(Sql, #context{} = Context, Timeout) when is_integer(Timeout) ->
     equery(Sql, [], Context, Timeout).
 
--spec equery(sql(), parameters(), #context{}, integer()) -> any().
+-spec equery(sql(), parameters(), z:context(), integer()) -> any().
 equery(Sql, Parameters, Context, Timeout) ->
     F = fun(C) when C =:= none -> {error, noresult};
            (C) ->
