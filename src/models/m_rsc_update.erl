@@ -238,9 +238,8 @@ duplicate(Id, DupProps, Context) ->
 
 
 %% @doc Update a resource
-%% @spec update(Id, Props, Context) -> {ok, Id}
 %% @throws {error, Reason}
--spec update(m_rsc:resource() | insert_rsc, list(), #context{}) -> {ok, integer()} | {error, term()}.
+-spec update(m_rsc:resource() | insert_rsc, list(), #context{}) -> {ok, m_rsc:resource_id()}.
 update(Id, Props, Context) ->
     update(Id, Props, [], Context).
 

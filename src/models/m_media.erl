@@ -436,6 +436,7 @@ update_medium_1(RscId, Medium, RscProps, Options, Context) ->
 
 %% @doc Make a new resource for the file based on a URL.
 %% @spec insert_url(File, Context) -> {ok, Id} | {error, Reason}
+-spec insert_url(file:filename(), #context{}) -> {ok, pos_integer()} | {error, term()}.
 insert_url(Url, Context) ->
     insert_url(Url, [], Context).
 

@@ -787,6 +787,8 @@ trace(undefined, _PathTokens, _What, _Args) ->
 trace(TracerPid, PathTokens, What, Args) ->
     TracerPid ! {trace, PathTokens, What, Args}.
 
+trace_final(undefined, R) ->
+    R;
 trace_final(TracerPid, #dispatch_controller{
     controller = Controller,
     controller_options = ControllerOptions,
@@ -803,9 +805,7 @@ trace_final(TracerPid, #dispatch_controller{
           ]),
     Match;
 trace_final(_TracerPid, RedirectOrHandled) ->
-    RedirectOrHandled;
-trace_final(undefined, R) ->
-    R.
+    RedirectOrHandled.
 
 
 add_port(http, Hostname, 80) ->

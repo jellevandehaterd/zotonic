@@ -30,6 +30,7 @@
 generate(ModLabels, Context) ->
     generate1(ModLabels, Context).
 
+-spec generate1([{atom(), list()}], #context{}) -> ok.
 generate1([], _Context) ->
     ok;
 generate1([{Module, Labels}|ModuleLabels], Context) ->

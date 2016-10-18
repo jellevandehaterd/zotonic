@@ -696,7 +696,7 @@
     file :: file:filename(),
     original_filename :: file:filename(),
     medium :: list(),
-    post_insert_fun :: function()
+    post_insert_fun :: function() | undefined
 }).
 
 %% @doc Notification that a medium file has been uploaded.

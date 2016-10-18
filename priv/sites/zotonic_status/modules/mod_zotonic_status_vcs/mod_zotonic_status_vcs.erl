@@ -80,7 +80,7 @@ show_notice(SiteName, Text, Context) ->
     z_session_page:add_script(notice(SiteName, Text, Context)).
 
 % @doc Render a notice.
--spec notice(binary(), string(), #context{}) -> #context{}.
+-spec notice(atom(), string(), #context{}) -> #context{}.
 notice(SiteName, Text, Context) ->
     Context1 = z_render:appear_top(
                         "notices",

@@ -57,6 +57,7 @@ moved_permanently(Context) ->
     {false, Context}.
 
 
+-spec add_language(string(), #context{}) -> binary().
 add_language(Url, Context) ->
     iolist_to_binary([$/, z_context:language(Context), Url]).
 
