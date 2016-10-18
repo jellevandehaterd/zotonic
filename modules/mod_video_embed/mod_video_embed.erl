@@ -322,7 +322,12 @@ event(#submit{message={add_video_embed, EventProps}}, Context) ->
                 ContextRedirect = case SubjectId of
                     undefined ->
                         case Stay of
-                            false -> z_render:wire({redirect, [{dispatch, "admin_edit_rsc"}, {id, MediaId}]}, ContextLink);
+                            false -> z_render:wire(
+                                {redirect, [
+                                    {dispatch, "admin_edit_rsc"}, {id, MediaId}
+                                ]},
+                                ContextLink
+                            );
                             true -> ContextLink
                         end;
                     _ -> ContextLink
@@ -390,7 +395,7 @@ preview_vimeo(MediaId, InsertProps, Context) ->
         <<>> ->
             static_preview(MediaId, "images/vimeo.jpg", Context);
         EmbedId ->
-            JsonUrl = "http://vimeo.com/api/v2/video/"++z_convert:to_list(EmbedId)++".json",
+            JsonUrl = "http://vimeo.com/api/v2/video/" ++ z_convert:to_list(EmbedId) ++ ".json",
             case httpc:request(JsonUrl) of
                 {ok, {{_Http, 200, _Ok}, _Header, Data}} ->
                     {array, [{struct, Props}]} = mochijson:decode(Data),

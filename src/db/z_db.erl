@@ -180,7 +180,7 @@ transaction_clear(Context) ->
 
 
 %% @doc Check if we have database connection
--spec has_connection(#context{}) -> boolean().
+-spec has_connection(z:context()) -> boolean().
 has_connection(Context) ->
     is_pid(erlang:whereis(z_context:db_pool(Context))).
 
@@ -204,7 +204,7 @@ return_connection(_C, _Context) ->
 
 %% @doc Apply function F with a connection as parameter. Make sure the
 %% connection is returned after usage.
--spec with_connection(fun(), #context{}) -> any().
+-spec with_connection(fun(), z:context()) -> any().
 with_connection(F, Context) ->
     with_connection(F, get_connection(Context), Context).
 
@@ -221,11 +221,11 @@ with_connection(F, Context) ->
     end.
 
 
--spec assoc_row(string(), #context{}) -> list(tuple()).
+-spec assoc_row(string(), z:context()) -> list(tuple()).
 assoc_row(Sql, Context) ->
     assoc_row(Sql, [], Context).
 
--spec assoc_row(string(), parameters(), #context{}) -> proplists:proplist() | undefined.
+-spec assoc_row(string(), parameters(), z:context()) -> proplists:proplist() | undefined.
 assoc_row(Sql, Parameters, Context) ->
     case assoc(Sql, Parameters, Context) of
         [Row|_] -> Row;
@@ -243,7 +243,7 @@ assoc_props_row(Sql, Parameters, Context) ->
 
 
 %% @doc Return property lists of the results of a query on the database in the Context
--spec assoc(string(), #context{}) -> list().
+-spec assoc(string(), z:context()) -> list().
 assoc(Sql, Context) ->
     assoc(Sql, [], Context).
 
@@ -368,7 +368,7 @@ equery(Sql, Parameters, Context, Timeout) ->
 
 
 %% @doc Insert a new row in a table, use only default values.
--spec insert(table_name(), #context{}) -> boolean().
+-spec insert(table_name(), z:context()) -> boolean().
 insert(Table, Context) when is_atom(Table) ->
     insert(atom_to_list(Table), Context);
 insert(Table, Context) ->
@@ -761,7 +761,7 @@ create_schema(Site, Connection, Schema) ->
     end.
 
 %% @doc Check the information schema if a certain table exists in the context database.
--spec table_exists(table_name(), #context{}) -> boolean().
+-spec table_exists(table_name(), z:context()) -> boolean().
 table_exists(Table, Context) ->
     Options = z_db_pool:get_database_options(Context),
     Db = proplists:get_value(dbdatabase, Options),
@@ -778,7 +778,7 @@ table_exists(Table, Context) ->
 
 
 %% @doc Make sure that a table is dropped, only when the table exists
--spec drop_table(table_name(), #context{}) -> ok.
+-spec drop_table(table_name(), z:context()) -> ok.
 drop_table(Name, Context) when is_atom(Name) ->
     drop_table(atom_to_list(Name), Context);
 drop_table(Name, Context) ->
@@ -791,13 +791,14 @@ drop_table(Name, Context) ->
 %% @doc Ensure that a table with the given columns exists, alter any existing table
 %% to add, modify or drop columns.  The 'id' (with type serial) column _must_ be defined
 %% when creating the table.
--spec create_table(table_name(), list(), #context{}) -> ok.
+-spec create_table(table_name(), list(), z:context()) -> ok.
 create_table(Table, Cols, Context) when is_atom(Table)->
     create_table(atom_to_list(Table), Cols, Context);
 create_table(Table, Cols, Context) ->
     assert_table_name(Table),
     ColsSQL = ensure_table_create_cols(Cols, []),
-    z_db:q("CREATE TABLE \""++Table++"\" ("++string:join(ColsSQL, ",") ++ table_create_primary_key(Cols) ++ ")", Context),
+    z_db:q("CREATE TABLE \""++Table++"\" ("++string:join(ColsSQL, ",")
+        ++ table_create_primary_key(Cols) ++ ")", Context),
     ok.
 
 
@@ -860,7 +861,7 @@ merge_props([R|Rest], Acc) ->
     end.
 
 
--spec assoc1(atom(), #context{}, string(), [tuple()], pos_integer()) -> {ok, [[tuple()]]}.
+-spec assoc1(atom(), z:context(), string(), [tuple()], pos_integer()) -> {ok, [[tuple()]]}.
 assoc1(DbDriver, C, Sql, Parameters, Timeout) ->
     case DbDriver:equery(C, Sql, Parameters, Timeout) of
         {ok, Columns, Rows} ->

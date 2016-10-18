@@ -75,7 +75,7 @@ event(#postback{message=make}, Context) ->
 
 
 % @doc Show a notice on the current webpage.
--spec show_notice(atom(), string(), #context{}) -> #context{}.
+-spec show_notice(atom(), string(), z:context()) -> z:context().
 show_notice(SiteName, Text, Context) ->
     z_session_page:add_script(notice(SiteName, Text, Context)).
 

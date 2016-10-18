@@ -101,7 +101,7 @@ do_convert(QueuePath, State) ->
             lager:warning("ffmpeg conversion error on ~p: ~p", [State#state.id, Error]),
             insert_broken(State)
     end,
-    mod_signal:emit({medium_update, [{id,State#state.id}]}, Context).
+    mod_signal:emit({medium_update, [{id, State#state.id}]}, Context).
 
 -spec insert_movie(string(), #state{}) -> {ok, m_rsc:resource_id()} | {error, atom()}.
 insert_movie(Filename, State) ->

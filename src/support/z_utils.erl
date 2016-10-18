@@ -620,14 +620,14 @@ randomize(List) ->
 %% @doc Take max N elements from a list.
 -spec split(integer(), list()) -> {list(), list()}.
 split(N, L) ->
-    split(N,L,[]).
+    split(N, L, []).
 
 split(_N, [], Acc) ->
     {lists:reverse(Acc), []};
 split(N, Rest, Acc) when N =< 0 ->
     {lists:reverse(Acc), Rest};
-split(N, [A|Rest], Acc) ->
-    split(N-1, Rest, [A|Acc]).
+split(N, [A | Rest], Acc) ->
+    split(N - 1, Rest, [A | Acc]).
 
 
 split_in(L, N) when N =< 1 ->

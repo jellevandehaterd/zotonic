@@ -666,14 +666,16 @@ set_tree_dirty(Flag, Context) when Flag =:= true; Flag =:= false ->
 
 %% @doc Ensure that all categories are present in the $category hierarchy.
 %%      This appends any newly found categories to the end of the category tree.
--spec ensure_hierarchy(#context{}) -> ok | {error, renumbering}.
+-spec ensure_hierarchy(z:context()) -> ok | {error, renumbering}.
 ensure_hierarchy(Context) ->
     case is_tree_dirty(Context) of
         false ->
             {ok, CatId} = name_to_id(category, Context),
             case m_hierarchy:ensure('$category', CatId, Context) of
                 {ok, N} when N > 0 ->
-                    lager:warning("[~p] Ensure category found ~p new categories.", [z_context:site(Context), N]),
+                    lager:warning("[~p] Ensure category found ~p new categories.",
+                        [z_context:site(Context), N]
+                    ),
                     flush(Context);
                 {ok, 0} ->
                     ok

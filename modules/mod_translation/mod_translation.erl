@@ -344,10 +344,10 @@ event(#postback{message={translation_reload, _Args}}, Context) ->
 
 %% @doc Strip the language code from the location (if the language code is recognized).
 %%      For instance: `<<"/nl-nl/admin/translation">>' becomes `<<"/admin/translation">>'
-url_strip_language(<<$/,A,B,$/, Rest/binary>> = Url) ->
-    url_strip_language1(Url, [A,B], Rest);
-url_strip_language(<<$/,A,B,$-,C,D,$/, Rest/binary>> = Url) ->
-    url_strip_language1(Url, [A,B,<<"-">>,C,D], Rest);
+url_strip_language(<<$/, A, B, $/, Rest/binary>> = Url) ->
+    url_strip_language1(Url, [A, B], Rest);
+url_strip_language(<<$/, A, B, $-, C, D, $/, Rest/binary>> = Url) ->
+    url_strip_language1(Url, [A, B, <<"-">>, C, D], Rest);
 url_strip_language(Url) ->
     Url.
 
@@ -460,7 +460,7 @@ language_delete(LanguageCode, Context) ->
     end.
 
 %% @doc Remove a language from the i18n configuration
--spec remove_from_config(atom(), #context{}) -> ok.
+-spec remove_from_config(atom(), z:context()) -> ok.
 remove_from_config(LanguageCode, Context) ->
     ConfigLanguages = language_config(Context),
     ConfigLanguages1 = proplists:delete(LanguageCode, ConfigLanguages),
