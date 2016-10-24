@@ -216,7 +216,7 @@ add_script(Script, Context) ->
     z_transport:page(javascript, Script, Context).
 
 %% @doc Split the scripts from the context and add the scripts to the page.
--spec add_script(#context{}) -> #context{}.
+-spec add_script(z:context()) -> z:context().
 add_script(Context) ->
     {Scripts, CleanContext} = z_script:split(Context),
     z_transport:page(javascript, Scripts, CleanContext),

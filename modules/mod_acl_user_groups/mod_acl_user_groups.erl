@@ -120,7 +120,7 @@ event(#postback{message={delete_all, Args}}, Context) ->
             )
     end.
 
--spec ug_delete(list(pos_integer()), z:context()) -> any().
+-spec ug_delete(list(m_rsc:resource_id()), z:context()) -> any().
 ug_delete(Ids, Context) ->
     z_session_page:add_script(
         z_render:wire({mask, [{message, ?__("Deleting...", Context)}]}, Context)

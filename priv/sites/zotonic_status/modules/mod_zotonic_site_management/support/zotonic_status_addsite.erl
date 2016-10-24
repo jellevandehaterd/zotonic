@@ -24,8 +24,8 @@
 
 -include_lib("zotonic.hrl").
 
--spec addsite(binary(), list(), #context{}) ->
-    {ok, {Site :: atom(), Options :: list()}} | {error, Reason :: binary() | string()}.
+-spec addsite(binary(), list(), z:context()) ->
+    {ok, {Site :: atom(), Options :: list()}} | {error, Reason :: list()}.
 addsite(Name, Options, Context) when is_binary(Name) ->
     % Check if name can used for the site (not z_, zotonic_, existing site, or existing module)
     case check_name(Name, Context) of
@@ -43,8 +43,6 @@ addsite(Name, Options, Context) when is_binary(Name) ->
     end.
 
 % Check Hostname (must have DNS resolve)
--spec addsite_check_hostname(binary(), list(), #context{}) ->
-    {ok, {Site :: binary(), Options :: list()}} | {error, Reason :: string()}.
 addsite_check_hostname(Name, Options, Context) ->
     mod_zotonic_site_management:progress(Name, ?__("Resolving the hostname ...", Context), Context),
     {hostname, HostPort} = proplists:lookup(hostname, Options),
@@ -57,6 +55,9 @@ addsite_check_hostname(Name, Options, Context) ->
     end.
 
 % Check if we can connect to the database
+
+-spec addsite_check_db(binary(), proplists:proplist(), z:context()) ->
+    {ok, Site :: atom(), Options :: list()} | {error, Reason :: list()}.
 addsite_check_db(Name, Options, Context) ->
     case proplists:lookup(skeleton, Options) of
         <<"nodb">> ->
@@ -91,6 +92,8 @@ addsite_check_db(Name, Options, Context) ->
     end.
 
 % Check if the user directory is writeable
+-spec addsite_check_userdir(binary(), proplists:proplist(), z:context()) ->
+    {ok, {atom(), list()}} | {error, list()}.
 addsite_check_userdir(Name, Options, Context) ->
     SiteDir = site_dir(Name),
     case file:make_dir(SiteDir) of
@@ -175,6 +178,7 @@ addsite_copy_skel(Name, Options, Context) ->
     end.
 
 % Compile
+-spec addsite_compile(binary(), proplists:proplist(), z:context()) -> {ok, {atom(), list()}}.
 addsite_compile(Name, Options, Context) ->
     mod_zotonic_site_management:progress(
         Name,
@@ -329,14 +333,18 @@ ensure_dir(Dir, Context) ->
                     Dir])}
     end.
 
+-spec replace_tags(binary(), proplists:proplist()) -> list(binary()).
 replace_tags(Bin, Options) when is_binary(Bin) ->
     Parts = re:split(Bin, "(%%[A-Z]+%%)", [{return,binary}]),
-    lists:map(
-            fun(P) ->
-                z_convert:to_binary(map_tag(P, Options))
-            end,
-            Parts).
 
+%%    lists:map(
+%%            fun(P) ->
+%%                map_tag(P, Options)
+%%            end,
+%%            Parts).
+ [map_tag(P, Options) || P <- Parts].
+
+-spec map_tag(term(), list()) -> term().
 map_tag(<<"%%SITE%%">>, Options) -> proplists:get_value(site, Options);
 map_tag(<<"%%SITEHOSTNAME%%">>, Options) -> proplists:get_value(hostname, Options);
 map_tag(<<"%%SKEL%%">>, Options) ->

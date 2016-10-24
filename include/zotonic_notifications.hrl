@@ -691,10 +691,10 @@
 %% Type: first
 %% Return: modified ``#media_upload_preprocess{}``
 -record(media_upload_preprocess, {
-    id :: integer() | 'insert_rsc',
-    mime :: binary(),
-    file :: file:filename(),
-    original_filename :: file:filename(),
+    id = insert_rsc :: m_rsc:resource_id() | insert_rsc,
+    mime :: string(),
+    file :: file:filename() | undefined,
+    original_filename :: file:filename() | undefined,
     medium :: list(),
     post_insert_fun :: function() | undefined
 }).
@@ -705,9 +705,9 @@
 %% Return: modified ``#media_upload_props{}``
 -record(media_upload_props, {
     id :: integer() | 'insert_rsc',
-    mime :: binary(),
-    archive_file,
-    options
+    mime :: string(),
+    archive_file :: file:filename() | undefined,
+    options :: list()
 }).
 
 %% @doc Notification that a medium file has been uploaded.
